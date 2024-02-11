@@ -314,7 +314,7 @@ namespace tokei_wform
             if (this.clockData == null)
             {
                 // デフォルトで
-                this.clockData = new ClockFontData(new Font(this.Font.Name, 32.0f), new SolidBrush(this.ForeColor), this.BackColor, this.Opacity / 1.2, new PointF(1, 1), new PointF(this.Location.X, this.Location.Y));
+                this.clockData = new ClockFontData(new Font(this.Font.Name, 32.0f), new SolidBrush(this.ForeColor), this.BackColor, 1.00 / 1.2, new PointF(1, 1), new PointF(this.Location.X, this.Location.Y));
             }
         }
     }

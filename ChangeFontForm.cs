@@ -23,6 +23,10 @@ namespace tokei_wform
             }
             this.pnl_BackColor.BackColor = _arg.backColor;
             this.trk_FontSize.Value = (int)(_arg.font.Size);
+            this.lbl_FontSizeValue.Text = $"{this.trk_FontSize.Value}em";
+            this.trk_Opacity.Value = (int)(_arg.opacity*100);
+            this.lbl_OpacityValue.Text = $"{this.trk_Opacity.Value}%";
+            this.Opacity = this.trk_Opacity.Value;
 
             this.curArg = _arg;
         }
@@ -73,37 +77,6 @@ namespace tokei_wform
             this.Close();
         }
 
-        private void pnl_FrontColor_Click(object sender, EventArgs e)
-        {
-            // 文字色の変更
-            ColorDialog dlg = new ColorDialog();
-            dlg.Color = this.curArg.foreColor.Color;
-            if (dlg.ShowDialog() == DialogResult.OK)
-            {
-                this.curArg.foreColor = new SolidBrush(dlg.Color);
-                this.RenderFont();
-            }
-        }
-
-        private void pnl_BackColor_Click(object sender, EventArgs e)
-        {
-            // 背景色の変更
-            ColorDialog dlg = new ColorDialog();
-            dlg.Color = this.curArg.backColor;
-            if (dlg.ShowDialog() == DialogResult.OK)
-            {
-                this.curArg.backColor = dlg.Color;
-                this.RenderFont();
-            }
-        }
-
-        private void trk_FontSize_Scroll(object sender, EventArgs e)
-        {
-            // フォントサイズ変更
-            this.curArg.FontSize = (float)this.trk_FontSize.Value;
-            this.RenderFont();
-        }
-
         private void cb_FontType_SelectedIndexChanged(object sender, EventArgs e)
         {
             // フォント変更
@@ -117,6 +90,48 @@ namespace tokei_wform
             // 変更終了
             this.DialogResult = DialogResult.OK;
             this.Close();
+        }
+
+        private void pnl_FrontColor_Click(object sender, EventArgs e)
+        {
+            // 文字色の変更
+            ColorDialog dlg = new ColorDialog();
+            dlg.Color = this.curArg.foreColor.Color;
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                this.curArg.foreColor = new SolidBrush(dlg.Color);
+                this.pnl_FrontColor.BackColor = dlg.Color;
+                this.RenderFont();
+            }
+        }
+
+        private void pnl_BackColor_Click(object sender, EventArgs e)
+        {
+            // 背景色の変更
+            ColorDialog dlg = new ColorDialog();
+            dlg.Color = this.curArg.backColor;
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                this.curArg.backColor = dlg.Color;
+                this.pnl_BackColor.BackColor = dlg.Color;
+                this.RenderFont();
+            }
+        }
+
+        private void trk_FontSize_Scroll(object sender, EventArgs e)
+        {
+            // フォントサイズ変更
+            this.curArg.FontSize = (float)this.trk_FontSize.Value;
+            this.lbl_FontSizeValue.Text = $"{this.trk_FontSize.Value}em";
+            this.RenderFont();
+        }
+
+        private void trk_Opacity_Scroll(object sender, EventArgs e)
+        {
+            // 透過率の変更
+            this.curArg.opacity = (double)this.trk_Opacity.Value / 100.0;
+            this.lbl_OpacityValue.Text = $"{this.trk_Opacity.Value}%";
+            this.RenderFont();
         }
     }
 }

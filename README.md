@@ -1,5 +1,5 @@
 # tokei_wform
-C# clock application by WinForms supported for windows10/11.
+C# .net 8.0 clock application by WinForms supported for windows10/11.
 
 ## specification
 - displayed the current clock per seconds. format: yyyy/mm/dd(dayof) hh:mm:ss 

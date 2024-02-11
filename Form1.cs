@@ -14,35 +14,38 @@ namespace tokei_wform
             InitializeComponent();
 
             this.currentOffset = null;
+            this.Opacity = 0;           // 初回表示が見えなくなるように
         }
 
-        private Dictionary<Guid, string> config_files = new Dictionary<Guid, string>();
-        private static string config_filename = "tokeiconfig.config";
+        // private Dictionary<Guid, string> config_files = new Dictionary<Guid, string>();
+        private string configcontents;
+        // private static string config_filename = "tokeiconfig.config";
+
+        private string MakeConfigFilename()
+        {
+            try
+            {
+                // 自分自身の仮想デスクトップIDを取得
+                var my_guid = VirtualDesktopManager.DesktopManager.GetWindowDesktopId(this.Handle);
+
+                return $"tokei_{my_guid.ToString().ToUpper()}.config";
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
 
         private bool ReadConfigFile()
         {
             // 設定ファイルの読み込み
-            StreamReader sr = null;
+            StreamReader? sr = null;
+            string cur_config = "";
             try
             {
-                sr = new StreamReader(Form1.config_filename);
+                sr = new StreamReader(this.MakeConfigFilename());
 
-                string _all = sr.ReadToEnd();
-
-                // 設定ファイルを仮想デスクトップID別に取得
-                string[] desktop = _all.Split("----");
-                foreach (string d in desktop)
-                {
-                    string[] _dd = d.Split(System.Environment.NewLine, 2);
-                    if (_dd.Length != 2) continue;
-
-                    // 最初がデスクトップID
-                    string[] _ddd = _dd[0].Split(new char[] { ':' });
-                    if (_ddd.Length != 2) continue;
-                    if (_ddd[0].Trim() != "desktopid") continue;
-
-                    this.config_files.Add(Guid.Parse(_ddd[1].Trim()), _dd[1].Trim());
-                }
+                cur_config = sr.ReadToEnd();
             }
             catch
             {
@@ -56,7 +59,8 @@ namespace tokei_wform
                     sr.Dispose();
                 }
             }
-            if ( config_files.Count == 0 ) return false;
+            if (string.IsNullOrEmpty(cur_config)) return false;
+            this.configcontents = cur_config;
             return true;
         }
 
@@ -66,19 +70,8 @@ namespace tokei_wform
             StreamWriter sw = null;
             try
             {
-                sw = new StreamWriter(Form1.config_filename);
-
-                List<string> _c = new List<string>();
-
-                if ( this.config_files.Count > 0 )
-                {
-                    foreach (var _k in this.config_files)
-                    {
-                        _c.Add($"desktopid:{_k.Key.ToString()}" + System.Environment.NewLine + _k.Value);
-                    }
-                }
-
-                sw.Write(string.Join("----", _c.ToArray()));
+                sw = new StreamWriter(this.MakeConfigFilename());
+                sw.Write(this.configcontents);
                 sw.Close();
             }
             catch
@@ -104,34 +97,8 @@ namespace tokei_wform
 
             // 時刻カウントタスクの起動
             this.clockCountCancel = new CancellationTokenSource();
-            IntPtr _h = this.Handle;
             this.clockCountTask = Task.Factory.StartNew(() =>
             {
-                // 設定ファイルの読み込み
-                if (this.ReadConfigFile())
-                {
-                    // 自分自身の仮想デスクトップIDを取得
-                    var my_guid = VirtualDesktopManager.DesktopManager.GetWindowDesktopId(_h);
-
-                    if (this.config_files.ContainsKey(my_guid))
-                    {
-                        // 見つけたので採用
-                        try
-                        {
-                            this.clockData = new ClockFontData(this.config_files[my_guid]);
-                        }
-                        catch
-                        {
-                            this.clockData = null;
-                        }
-                    }
-                }
-                if (this.clockData == null)
-                {
-                    // デフォルトで
-                    this.clockData = new ClockFontData(new Font(this.Font.Name, 32.0f), new SolidBrush(this.ForeColor), this.BackColor, this.Opacity / 1.2, new PointF(1, 1));
-                }
-
                 this.ClockCount();
             });
 
@@ -177,6 +144,7 @@ namespace tokei_wform
 
                 this.BackColor = this.clockData.backColor;
                 this.Opacity = this.clockData.opacity;
+                this.Location = new Point((int)(this.clockData.windowtop.X), (int)(this.clockData.windowtop.Y));
             }
 
             // 再描画要求
@@ -253,14 +221,15 @@ namespace tokei_wform
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
-            if ( e.Button == MouseButtons.Left)
+            if (e.Button == MouseButtons.Left)
             {
                 // ウィンドウ移動モード開始
                 // この時点でのマウスカーソルとウィンドウのtop/leftの差分を記憶
                 // つーても、そもそも e.Location が差分らしいのでそれで。
                 this.currentOffset = e.Location;
 
-            } else if ( e.Button == MouseButtons.Right )
+            }
+            else if (e.Button == MouseButtons.Right)
             {
                 // メニュー出す（フォント変更・終了）
                 ContextMenuStrip _m = new ContextMenuStrip();
@@ -270,7 +239,7 @@ namespace tokei_wform
                 {
                     // クリックされたのでフォント変更ダイアログを出す
                     ChangeFontForm _fm = new ChangeFontForm(this.clockData.DeepCopy());
-                    if ( _fm.ShowDialog() == DialogResult.OK )
+                    if (_fm.ShowDialog() == DialogResult.OK)
                     {
                         this.clockData = _fm.curArg;
                     }
@@ -282,25 +251,21 @@ namespace tokei_wform
                 _i_config.Click += (sender, _e) =>
                 {
                     // クリックされたので設定ファイルを更新する
+                    if (this.clockData != null)
+                    {
+                        this.configcontents = this.clockData.ToConfig();
 
-                    // 設定ファイルを再度読み込む
-                    this.config_files.Clear();
+                        // ファイルに書き出し
+                        this.WriteConfigFile();
+                    }
 
-                    // 自分自身の仮想デスクトップIDを取得
-                    var my_guid = VirtualDesktopManager.DesktopManager.GetWindowDesktopId(this.Handle);
-
-                    this.ReadConfigFile();
-                    // 設定を反映 or 上書き or 新規反映
-                    this.config_files[my_guid] = this.clockData != null ? this.clockData.ToConfig() : "";
-
-                    // ファイルに書き出し
-                    this.WriteConfigFile();
                 };
                 _m.Items.Add(_i_config);
                 _m.Items.Add(new ToolStripSeparator());
                 ToolStripLabel _i_exit = new ToolStripLabel();
                 _i_exit.Text = $"終了";
-                _i_exit.Click += (sender, e) => {
+                _i_exit.Click += (sender, e) =>
+                {
                     // アプリ終了
                     Application.Exit();
                 };
@@ -312,7 +277,7 @@ namespace tokei_wform
 
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
-            if ( e.Button == MouseButtons.Left && this.currentOffset != null )
+            if (e.Button == MouseButtons.Left && this.currentOffset != null)
             {
                 // ウィンドウ移動モード終了
                 this.currentOffset = null;
@@ -326,6 +291,30 @@ namespace tokei_wform
             {
                 Point _app = this.Location;
                 this.Location = new Point(_app.X + e.Location.X - this.currentOffset.Value.X, _app.Y + e.Location.Y - this.currentOffset.Value.Y);
+                this.clockData.windowtop = this.Location;
+            }
+        }
+
+        private void Form1_Shown(object sender, EventArgs e)
+        {
+            // 初回の表示のみ
+            // 設定ファイルの読み込み
+            if (this.ReadConfigFile())
+            {
+                // 読めたので採用
+                try
+                {
+                    this.clockData = new ClockFontData(this.configcontents);
+                }
+                catch
+                {
+                    this.clockData = null;
+                }
+            }
+            if (this.clockData == null)
+            {
+                // デフォルトで
+                this.clockData = new ClockFontData(new Font(this.Font.Name, 32.0f), new SolidBrush(this.ForeColor), this.BackColor, this.Opacity / 1.2, new PointF(1, 1), new PointF(this.Location.X, this.Location.Y));
             }
         }
     }
@@ -339,22 +328,21 @@ namespace tokei_wform
         public double opacity;
         // 描画パディング（上と左のみ：下は上と同じ、右は左と同じ
         public PointF padding;
+        public PointF windowtop;
 
-        public ClockFontData(Font _f, SolidBrush _fb, Color _bc, double _o, PointF clockPadding)
+        public ClockFontData(Font _f, SolidBrush _fb, Color _bc, double _o, PointF clockPadding, PointF windowtop)
         {
             this.font = _f;
             this.foreColor = _fb;
             this.backColor = _bc;
             this.opacity = _o;
             this.padding = clockPadding;
+            this.windowtop = windowtop;
         }
 
         public float FontSize
         {
-            get
-            {
-                return font.Size;
-            }
+            get => font.Size;
             set
             {
                 Font _f = new Font(this.font.Name, value);
@@ -364,7 +352,7 @@ namespace tokei_wform
 
         public ClockFontData DeepCopy()
         {
-            var _d = new ClockFontData(this.font, this.foreColor, this.backColor, this.opacity, this.padding);
+            var _d = new ClockFontData(this.font, this.foreColor, this.backColor, this.opacity, this.padding, this.windowtop);
 
             return _d;
         }
@@ -378,6 +366,7 @@ namespace tokei_wform
             _c.Add($"color: {this.foreColor.Color.ToArgb()}, {this.backColor.ToArgb()}");
             _c.Add($"padding: {this.padding.X}, {this.padding.Y}");
             _c.Add($"opacity: {this.opacity}");
+            _c.Add($"windowlocate: {this.windowtop.X}, {this.windowtop.Y}");
 
             return string.Join(System.Environment.NewLine, _c);
         }
@@ -392,6 +381,7 @@ namespace tokei_wform
             Color _cbc = Color.Black;
             double _co = -1;
             PointF _cp = new PointF(0,0);
+            PointF _cw = new PointF(0, 0);
 
             foreach ( var _tt in _t)
             {
@@ -420,6 +410,11 @@ namespace tokei_wform
                     case "opacity":
                         _co = double.Parse(_t0[1].Trim());
                         break;
+                    case "windowlocate":
+                        string[] _tw = _t0[1].Split(new char[] { ',' });
+                        if (_tw.Length != 2) continue;
+                        _cw = new PointF(float.Parse(_tw[0].Trim()), float.Parse(_tw[1].Trim()));
+                        break;
                 }
             }
 
@@ -433,6 +428,7 @@ namespace tokei_wform
             this.backColor = _cbc;
             this.opacity = _co;
             this.padding = _cp;
+            this.windowtop = _cw;
         }
     }
 

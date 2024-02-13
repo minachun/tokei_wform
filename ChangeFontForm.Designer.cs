@@ -50,6 +50,8 @@
             lbl_BackColor = new Label();
             pnl_FrontColor = new Panel();
             pnl_BackColor = new Panel();
+            lbl_FontRenderQ = new Label();
+            cb_FontQuality = new ComboBox();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
@@ -66,19 +68,22 @@
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 80F));
             tableLayoutPanel1.Controls.Add(lbl_FontType, 0, 0);
             tableLayoutPanel1.Controls.Add(lbl_FontSize, 0, 1);
-            tableLayoutPanel1.Controls.Add(lbl_FontColor, 0, 2);
-            tableLayoutPanel1.Controls.Add(tableLayoutPanel2, 0, 5);
-            tableLayoutPanel1.Controls.Add(lbl_FontSample, 0, 4);
-            tableLayoutPanel1.Controls.Add(tb_DispSample, 1, 4);
+            tableLayoutPanel1.Controls.Add(lbl_FontColor, 0, 3);
+            tableLayoutPanel1.Controls.Add(tableLayoutPanel2, 0, 6);
+            tableLayoutPanel1.Controls.Add(lbl_FontSample, 0, 5);
+            tableLayoutPanel1.Controls.Add(tb_DispSample, 1, 5);
             tableLayoutPanel1.Controls.Add(cb_FontType, 1, 0);
-            tableLayoutPanel1.Controls.Add(lbl_opacity, 0, 3);
-            tableLayoutPanel1.Controls.Add(tableLayoutPanel3, 1, 3);
+            tableLayoutPanel1.Controls.Add(lbl_opacity, 0, 4);
+            tableLayoutPanel1.Controls.Add(tableLayoutPanel3, 1, 4);
             tableLayoutPanel1.Controls.Add(tableLayoutPanel4, 1, 1);
-            tableLayoutPanel1.Controls.Add(tableLayoutPanel5, 1, 2);
+            tableLayoutPanel1.Controls.Add(tableLayoutPanel5, 1, 3);
+            tableLayoutPanel1.Controls.Add(lbl_FontRenderQ, 0, 2);
+            tableLayoutPanel1.Controls.Add(cb_FontQuality, 1, 2);
             tableLayoutPanel1.Dock = DockStyle.Fill;
             tableLayoutPanel1.Location = new Point(0, 0);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
-            tableLayoutPanel1.RowCount = 6;
+            tableLayoutPanel1.RowCount = 7;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
@@ -112,7 +117,7 @@
             // 
             lbl_FontColor.Anchor = AnchorStyles.Right;
             lbl_FontColor.AutoSize = true;
-            lbl_FontColor.Location = new Point(73, 92);
+            lbl_FontColor.Location = new Point(73, 132);
             lbl_FontColor.Name = "lbl_FontColor";
             lbl_FontColor.Size = new Size(65, 15);
             lbl_FontColor.TabIndex = 2;
@@ -161,7 +166,7 @@
             // 
             lbl_FontSample.Anchor = AnchorStyles.Right;
             lbl_FontSample.AutoSize = true;
-            lbl_FontSample.Location = new Point(70, 254);
+            lbl_FontSample.Location = new Point(70, 274);
             lbl_FontSample.Name = "lbl_FontSample";
             lbl_FontSample.Size = new Size(68, 15);
             lbl_FontSample.TabIndex = 4;
@@ -170,7 +175,7 @@
             // tb_DispSample
             // 
             tb_DispSample.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            tb_DispSample.Location = new Point(144, 250);
+            tb_DispSample.Location = new Point(144, 270);
             tb_DispSample.Name = "tb_DispSample";
             tb_DispSample.Size = new Size(559, 23);
             tb_DispSample.TabIndex = 5;
@@ -189,7 +194,7 @@
             // 
             lbl_opacity.Anchor = AnchorStyles.Right;
             lbl_opacity.AutoSize = true;
-            lbl_opacity.Location = new Point(95, 132);
+            lbl_opacity.Location = new Point(95, 172);
             lbl_opacity.Name = "lbl_opacity";
             lbl_opacity.Size = new Size(43, 15);
             lbl_opacity.TabIndex = 8;
@@ -203,7 +208,7 @@
             tableLayoutPanel3.Controls.Add(lbl_OpacityValue, 0, 0);
             tableLayoutPanel3.Controls.Add(trk_Opacity, 1, 0);
             tableLayoutPanel3.Dock = DockStyle.Fill;
-            tableLayoutPanel3.Location = new Point(144, 123);
+            tableLayoutPanel3.Location = new Point(144, 163);
             tableLayoutPanel3.Name = "tableLayoutPanel3";
             tableLayoutPanel3.RowCount = 1;
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
@@ -280,12 +285,12 @@
             tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
             tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10F));
             tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
-            tableLayoutPanel5.Controls.Add(lbl_FrontColor, 0, 0);
             tableLayoutPanel5.Controls.Add(lbl_BackColor, 2, 0);
             tableLayoutPanel5.Controls.Add(pnl_FrontColor, 1, 0);
             tableLayoutPanel5.Controls.Add(pnl_BackColor, 3, 0);
+            tableLayoutPanel5.Controls.Add(lbl_FrontColor, 0, 0);
             tableLayoutPanel5.Dock = DockStyle.Fill;
-            tableLayoutPanel5.Location = new Point(144, 83);
+            tableLayoutPanel5.Location = new Point(144, 123);
             tableLayoutPanel5.Name = "tableLayoutPanel5";
             tableLayoutPanel5.RowCount = 1;
             tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
@@ -332,6 +337,26 @@
             pnl_BackColor.Size = new Size(220, 28);
             pnl_BackColor.TabIndex = 3;
             pnl_BackColor.Click += pnl_BackColor_Click;
+            // 
+            // lbl_FontRenderQ
+            // 
+            lbl_FontRenderQ.Anchor = AnchorStyles.Right;
+            lbl_FontRenderQ.AutoSize = true;
+            lbl_FontRenderQ.Location = new Point(54, 92);
+            lbl_FontRenderQ.Name = "lbl_FontRenderQ";
+            lbl_FontRenderQ.Size = new Size(84, 15);
+            lbl_FontRenderQ.TabIndex = 12;
+            lbl_FontRenderQ.Text = "レンダリング品質";
+            // 
+            // cb_FontQuality
+            // 
+            cb_FontQuality.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            cb_FontQuality.FormattingEnabled = true;
+            cb_FontQuality.Location = new Point(144, 88);
+            cb_FontQuality.Name = "cb_FontQuality";
+            cb_FontQuality.Size = new Size(559, 23);
+            cb_FontQuality.TabIndex = 13;
+            cb_FontQuality.SelectedIndexChanged += cb_FontQuality_SelectedIndexChanged;
             // 
             // ChangeFontForm
             // 
@@ -382,5 +407,7 @@
         private Label lbl_BackColor;
         private Panel pnl_FrontColor;
         private Panel pnl_BackColor;
+        private Label lbl_FontRenderQ;
+        private ComboBox cb_FontQuality;
     }
 }

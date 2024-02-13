@@ -24,9 +24,10 @@ namespace tokei_wform
             this.pnl_BackColor.BackColor = _arg.backColor;
             this.trk_FontSize.Value = (int)(_arg.font.Size);
             this.lbl_FontSizeValue.Text = $"{this.trk_FontSize.Value}em";
-            this.trk_Opacity.Value = (int)(_arg.opacity*100);
+            this.trk_Opacity.Value = (int)(_arg.opacity * 100);
             this.lbl_OpacityValue.Text = $"{this.trk_Opacity.Value}%";
             this.Opacity = this.trk_Opacity.Value;
+            this.cb_FontQuality.Items.AddRange(Enum.GetNames(typeof(System.Drawing.Text.TextRenderingHint)));
 
             this.curArg = _arg;
         }
@@ -42,6 +43,7 @@ namespace tokei_wform
             this.tb_DispSample.BackColor = this.curArg.backColor;
             this.Opacity = this.curArg.opacity;
             DateTime _d = DateTime.Now;
+            // ToDo: TextRenderingHintはどうやって設定すんねん…？OnPaintのっとらなあかんの？
             this.tb_DispSample.Text = $"{_d.Year:D04}/{_d.Month:D02}/{_d.Day:D02}({System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetDayName(_d.DayOfWeek)}) {_d.Hour:D02}:{_d.Minute:D02}:{_d.Second:D02}";
         }
 
@@ -66,6 +68,9 @@ namespace tokei_wform
             {
                 this.cb_FontType.SelectedIndex = sameidx;
             }
+
+            int _idx = this.cb_FontQuality.Items.IndexOf(this.curArg.fontQuality.ToString());
+            this.cb_FontQuality.SelectedIndex = _idx;
 
             this.RenderFont();
         }
@@ -132,6 +137,11 @@ namespace tokei_wform
             this.curArg.opacity = (double)this.trk_Opacity.Value / 100.0;
             this.lbl_OpacityValue.Text = $"{this.trk_Opacity.Value}%";
             this.RenderFont();
+        }
+
+        private void cb_FontQuality_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.curArg.fontQuality = (System.Drawing.Text.TextRenderingHint)Enum.Parse(typeof(System.Drawing.Text.TextRenderingHint), (string)(this.cb_FontQuality.SelectedItem));
         }
     }
 }

@@ -119,6 +119,7 @@ namespace tokei_wform
                 // 描画
                 lock (this.ClockString)
                 {
+                    e.Graphics.TextRenderingHint = this.clockData.fontQuality;
                     e.Graphics.DrawString(this.ClockString, this.clockData.font, this.clockData.foreColor, this.clockData.padding);
                 }
             }
@@ -314,7 +315,7 @@ namespace tokei_wform
             if (this.clockData == null)
             {
                 // デフォルトで
-                this.clockData = new ClockFontData(new Font(this.Font.Name, 32.0f), new SolidBrush(this.ForeColor), this.BackColor, 1.00 / 1.2, new PointF(1, 1), new PointF(this.Location.X, this.Location.Y));
+                this.clockData = new ClockFontData(new Font(this.Font.Name, 32.0f), new SolidBrush(this.ForeColor), this.BackColor, 1.00 / 1.2, new PointF(1, 1), new PointF(this.Location.X, this.Location.Y), System.Drawing.Text.TextRenderingHint.SystemDefault);
             }
         }
     }
@@ -329,8 +330,9 @@ namespace tokei_wform
         // 描画パディング（上と左のみ：下は上と同じ、右は左と同じ
         public PointF padding;
         public PointF windowtop;
+        public System.Drawing.Text.TextRenderingHint fontQuality;
 
-        public ClockFontData(Font _f, SolidBrush _fb, Color _bc, double _o, PointF clockPadding, PointF windowtop)
+        public ClockFontData(Font _f, SolidBrush _fb, Color _bc, double _o, PointF clockPadding, PointF windowtop, System.Drawing.Text.TextRenderingHint fontQuality)
         {
             this.font = _f;
             this.foreColor = _fb;
@@ -338,6 +340,7 @@ namespace tokei_wform
             this.opacity = _o;
             this.padding = clockPadding;
             this.windowtop = windowtop;
+            this.fontQuality = fontQuality;
         }
 
         public float FontSize
@@ -352,7 +355,7 @@ namespace tokei_wform
 
         public ClockFontData DeepCopy()
         {
-            var _d = new ClockFontData(this.font, this.foreColor, this.backColor, this.opacity, this.padding, this.windowtop);
+            var _d = new ClockFontData(this.font, this.foreColor, this.backColor, this.opacity, this.padding, this.windowtop, this.fontQuality);
 
             return _d;
         }
@@ -363,6 +366,7 @@ namespace tokei_wform
             List<string> _c = new List<string>();
 
             _c.Add($"font: {this.font.Name}, {this.font.Size}");
+            _c.Add($"quality: {this.fontQuality.ToString()}");
             _c.Add($"color: {this.foreColor.Color.ToArgb()}, {this.backColor.ToArgb()}");
             _c.Add($"padding: {this.padding.X}, {this.padding.Y}");
             _c.Add($"opacity: {this.opacity}");
@@ -382,6 +386,7 @@ namespace tokei_wform
             double _co = -1;
             PointF _cp = new PointF(0,0);
             PointF _cw = new PointF(0, 0);
+            System.Drawing.Text.TextRenderingHint _cq = System.Drawing.Text.TextRenderingHint.SystemDefault;
 
             foreach ( var _tt in _t)
             {
@@ -395,6 +400,9 @@ namespace tokei_wform
                         if ( _tf.Length != 2) continue;
                         float _ss = float.Parse(_tf[1].Trim());
                         _cf = new Font(_tf[0].Trim(), _ss);
+                        break;
+                    case "quality":
+                        _cq = (System.Drawing.Text.TextRenderingHint)Enum.Parse(typeof(System.Drawing.Text.TextRenderingHint),_t0[1].Trim());
                         break;
                     case "color":
                         string[] _tc = _t0[1].Split(new char[] { ',' });
@@ -424,6 +432,7 @@ namespace tokei_wform
             }
 
             this.font = _cf;
+            this.fontQuality = _cq;
             this.foreColor = _cfb;
             this.backColor = _cbc;
             this.opacity = _co;
